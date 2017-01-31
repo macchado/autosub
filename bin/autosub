@@ -80,9 +80,11 @@ class Log(object):
         self.write(text, 'w')
 
     def write(self, text, mode='a'):
-        with open(self.filename, mode) as f:
-            f.write(text)
-
+        try:
+            with open(self.filename, mode) as f:
+                f.write(text)
+        except EnvironmentError:
+            print 'Error writing log'
 
 class FLACConverter(object):
     def __init__(self, source_path, include_before=0.25, include_after=0.25):
@@ -340,11 +342,12 @@ def main():
 
         except KeyboardInterrupt:
             pbar.finish()
+
             log.init_step("cancelling")
-            log.add(log, 100)
+            log.add(100)
             log.end_step()
             log.finish()
-            progress_text_finish(log, "cancelling")
+
             pool.terminate()
             pool.join()
             print "Cancelling transcription"
